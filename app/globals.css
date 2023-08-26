@@ -59,3 +59,8 @@ tr:nth-child(even) {
 td {
   padding: 0.5rem;
 }
+
+#root{
+  display: flex;
+  flex-direction: column;
+}
