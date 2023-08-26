@@ -4,16 +4,11 @@ import React, { useRef, useState } from "react";
 const WeatherForecast = () => {
   const [weatherData, setWeatherData] = useState(null);
 
-  const latRef = useRef();
-  const longref = useRef();
+  const [longitude, setLongitude] = useState("");
+  const [latitude, setLatitude] = useState("");
 
   const fetchData = async (e) => {
     e.preventDefault();
-
-    const latitude = latRef.current.value;
-    const longitude = longref.current.value;
-
-    console.log(latitude, longitude);
 
     try {
       const res = await fetch(
@@ -21,13 +16,10 @@ const WeatherForecast = () => {
       );
       const data = await res.json();
       setWeatherData(data.properties.timeseries.splice(0, 30));
-      
     } catch (error) {
       console.log("An error occured: ", error);
     }
   };
-
-  
 
   return (
     <div id="root">
@@ -40,7 +32,8 @@ const WeatherForecast = () => {
           name="latitude"
           className="latitude"
           required
-          ref={latRef}
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
         />
 
         <label htmlFor="longitude">Longitude</label>
@@ -49,37 +42,33 @@ const WeatherForecast = () => {
           name="longitude"
           className="longitude"
           required
-          ref={longref}
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
         />
 
-        <button type="submit">Get Forecast</button>
+        <button type="submit" disabled={!longitude || !latitude}>
+          Get Forecast
+        </button>
       </form>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Temperature (°C)</th>
-              <th>Summary</th>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Temperature (°C)</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {weatherData?.map((timestamp, index) => (
+            <tr key={index}>
+              <td>{new Date(timestamp.time).toLocaleString()}</td>
+              <td>{timestamp.data.instant.details.air_temperature}</td>
+              <td>{timestamp.data.next_1_hours.summary.symbol_code}</td>
             </tr>
-          </thead>
-          
-            {weatherData?.map((timestamp,index)=>(
-              
-              <tbody key={index}>
-                <tr>
-                  <td >{new Date(timestamp.time).toLocaleString()}</td>
-                  <td >{timestamp.data.instant.details.air_temperature}</td>
-                  <td>{timestamp.data.next_1_hours.summary.symbol_code}</td>
-                </tr>
-                
-                
-              </tbody>
-              
-            ))}
-          
-        </table>
-      
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
